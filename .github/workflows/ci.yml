@@ -1,0 +1,42 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: golangci/golangci-lint:v1.43.0
+      # Run as non-root user so we can simulate files being not readable.
+      options: --user 1001
+    steps:
+      # Setup cache for faster execution.
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - uses: actions/checkout@v2
+      - run: make build build-test test-race test-update-linters lint test-tidy check-test-mutate
+  codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: codespell-project/actions-codespell@master
+        with:
+          skip: .git
+          check_filenames: true
+          check_hidden: true
+  semgrep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # Use dedicated action for nice integration with GitHub.
+      - uses: returntocorp/semgrep-action@v1

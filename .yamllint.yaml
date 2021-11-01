@@ -1,0 +1,6 @@
+extends: default
+rules:
+  # No need for -- in every yaml file.
+  document-start: disable
+  # Some long lines are OK.
+  line-length: disable

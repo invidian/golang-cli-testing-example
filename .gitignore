@@ -1,0 +1,4 @@
+# Ignore manually compiled binary.
+/compressor
+# Ignore coverage report file.
+/c.out
